@@ -197,7 +197,13 @@ function login() {
         return;
     }
 
+    console.log('Usuario ingresado:', user);
+    console.log('Pass ingresado:', pass);
+    console.log('Admin user correcto:', DB.getAdminUser());
+    console.log('Admin pass correcto:', DB.getAdminPass());
+
     if (user === DB.getAdminUser() && pass === DB.getAdminPass()) {
+        console.log('Login exitoso como admin');
         currentUser = { type: 'admin', name: 'Administrador' };
         DB.setCurrentUser(currentUser);
         showAdminDashboard();
