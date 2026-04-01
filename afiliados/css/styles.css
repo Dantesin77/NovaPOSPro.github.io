@@ -1,0 +1,107 @@
+body { font-family: 'Inter', sans-serif; }
+.hidden { display: none; }
+#loginScreen, #registerScreen, #adminDashboard, #affiliateDashboard { display: none; }
+#loginScreen.visible, #registerScreen.visible, #adminDashboard.visible, #affiliateDashboard.visible { display: flex; }
+.glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+.glow { box-shadow: 0 0 40px rgba(59,130,246,0.3); }
+
+/* Tab Content - Altura fija exacta para que no se mueva */
+.tab-content { 
+    margin-bottom: 20px; 
+    height: calc(100vh - 300px);
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.tab-content:not(.hidden) { 
+    display: block; 
+}
+.tab-content .glass { 
+    overflow-x: auto; 
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Dashboard sin scroll interno */
+#tab-dashboard {
+    overflow: visible;
+}
+#tab-dashboard .glass {
+    height: auto;
+    overflow: visible;
+}
+
+/* Contenedor principal fijo */
+#adminDashboard .max-w-7xl {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+#adminDashboard > div {
+    width: 100%;
+    min-width: 100%;
+}
+
+/* Tablas estilo Excel */
+.glass table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+}
+
+.glass table thead tr {
+    background: rgba(255,255,255,0.1);
+}
+
+.glass table th {
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #94a3b8;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+}
+
+.glass table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+}
+
+.glass table tbody tr:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.glass table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Overflow para tablas */
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Modales con scroll */
+.fixed .glass {
+    max-height: 85vh;
+    overflow-y: auto;
+}
