@@ -24,7 +24,10 @@ const DB = {
                 String.fromCharCode(c.charCodeAt(0) ^ this._key.charCodeAt(i % this._key.length))
             ).join('');
             return JSON.parse(decodeURIComponent(str));
-        } catch(e) { return JSON.parse(atob(data)); }
+        } catch(e) { 
+            console.error('Error al desencriptar:', e);
+            return null;
+        }
     },
     
     getAffiliates() { 
@@ -56,8 +59,20 @@ const DB = {
         localStorage.setItem('pagos_enc', this._encrypt(data));
     },
     getCurrentUser() { 
-        const data = localStorage.getItem('currentUser_enc');
-        return data ? this._decrypt(data) : null;
+        try {
+            const data = localStorage.getItem('currentUser_enc');
+            if (!data) return null;
+            const result = this._decrypt(data);
+            if (!result) {
+                localStorage.removeItem('currentUser_enc');
+                return null;
+            }
+            return result;
+        } catch(e) {
+            console.error('Error getCurrentUser:', e);
+            localStorage.removeItem('currentUser_enc');
+            return null;
+        }
     },
     setCurrentUser(data) { 
         localStorage.setItem('currentUser_enc', this._encrypt(data));
@@ -65,9 +80,23 @@ const DB = {
     logout() { 
         localStorage.removeItem('currentUser_enc');
     },
-    getAdminPass: () => localStorage.getItem('adminPass_enc') || '312915',
+    getAdminPass() { 
+        try {
+            const stored = localStorage.getItem('adminPass_enc');
+            return stored ? atob(stored) : '312915';
+        } catch(e) {
+            return '312915';
+        }
+    },
     setAdminPass(pass) { localStorage.setItem('adminPass_enc', btoa(pass)); },
-    getAdminUser: () => { const u = localStorage.getItem('adminUser_enc'); return u ? atob(u) : 'admin'; },
+    getAdminUser() { 
+        try {
+            const u = localStorage.getItem('adminUser_enc');
+            return u ? atob(u) : 'admin';
+        } catch(e) {
+            return 'admin';
+        }
+    },
     setAdminUser(user) { localStorage.setItem('adminUser_enc', btoa(user)); }
 };
 
@@ -155,6 +184,12 @@ function login() {
         currentUser = { type: 'admin', name: 'Administrador' };
         DB.setCurrentUser(currentUser);
         showAdminDashboard();
+        
+        // Conectar a Firebase
+        if (initFirebase()) {
+            updateCloudStatus(true);
+        }
+        
         showToast('Bienvenido Admin!');
     } else {
         const affiliates = DB.getAffiliates();
