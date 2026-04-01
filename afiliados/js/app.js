@@ -1,3 +1,4 @@
+console.log('App.js cargado correctamente');
 const DB = {
     _defaultAdminPass: '312915',
     _key: localStorage.getItem('novaKey') || (() => {
