@@ -41,8 +41,8 @@
                     </button>
                 </div>
                 <div class="mt-4 text-center space-y-2">
-                    <a href="#" onclick="showResetPass(); return false;" class="block text-yellow-400 hover:text-yellow-300 text-sm">¿Olvidaste tu contraseña?</a>
-                    <a href="#" onclick="showRegister(); return false;" class="block text-blue-400 hover:text-blue-300 text-sm">¿Eres afiliado? Regístrate aquí</a>
+                    <button type="button" onclick="showResetPass()" class="block text-yellow-400 hover:text-yellow-300 text-sm bg-transparent border-none cursor-pointer">¿Olvidaste tu contraseña?</button>
+                    <button type="button" onclick="showRegister()" class="block text-blue-400 hover:text-blue-300 text-sm bg-transparent border-none cursor-pointer">¿Eres afiliado? Regístrate aquí</button>
                 </div>
                 <div class="mt-6 pt-4 border-t border-slate-700 text-center">
                     <a href="https://dantesin77.github.io/NovaPOSPro.github.io/" class="text-green-400 hover:text-green-300 text-sm">🏠 Volver a Nova POS Pro</a>
@@ -729,5 +729,27 @@
     </div>
 
     <script src="js/app.js"></script>
+    <script>
+        // Diagnóstico
+        console.log('=== DIAGNOSTICO ===');
+        console.log('login function exists:', typeof login);
+        console.log('showResetPass exists:', typeof showResetPass);
+        console.log('showRegister exists:', typeof showRegister);
+        
+        // Test manual
+        function testLogin() {
+            console.log('Test login clicked');
+            try {
+                login();
+            } catch(e) {
+                console.error('Error en login:', e);
+            }
+        }
+        
+        // Listener para errores
+        window.addEventListener('error', function(e) {
+            console.error('JS Error:', e.message, 'at', e.filename, 'line', e.lineno);
+        });
+    </script>
 </body>
 </html>
