@@ -1,11 +1,25 @@
 console.log('App.js cargado correctamente');
 
+// Limpiar datos corruptos
+try {
+    const test = localStorage.getItem('currentUser_enc');
+    if (test) {
+        JSON.parse(test); // esto fallará si está encriptado
+    }
+} catch(e) {
+    localStorage.removeItem('currentUser_enc');
+    console.log('Datos corruptos limpiados');
+}
+
 // ============ BASE DE DATOS LOCAL ============
 const DB = {
     _defaultAdminPass: '312915',
-    _key: localStorage.getItem('novaKey') || (() => {
-        const k = 'novaPOS_' + Math.random().toString(36).slice(2, 18);
-        localStorage.setItem('novaKey', k);
+    _key: (() => {
+        let k = localStorage.getItem('novaKey');
+        if (!k) {
+            k = 'novaPOS_' + Math.random().toString(36).slice(2, 18);
+            localStorage.setItem('novaKey', k);
+        }
         return k;
     })(),
     
