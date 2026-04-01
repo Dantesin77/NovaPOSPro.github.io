@@ -1,27 +1,9 @@
 console.log('App.js cargado correctamente');
 
-// Limpiar datos corruptos
-try {
-    const test = localStorage.getItem('currentUser_enc');
-    if (test) {
-        JSON.parse(test); // esto fallará si está encriptado
-    }
-} catch(e) {
-    localStorage.removeItem('currentUser_enc');
-    console.log('Datos corruptos limpiados');
-}
-
 // ============ BASE DE DATOS LOCAL ============
 const DB = {
     _defaultAdminPass: '312915',
-    _key: (() => {
-        let k = localStorage.getItem('novaKey');
-        if (!k) {
-            k = 'novaPOS_' + Math.random().toString(36).slice(2, 18);
-            localStorage.setItem('novaKey', k);
-        }
-        return k;
-    })(),
+    _key: 'novaPOS_fixed_key_2024', // Clave fija para que los datos se puedan desencriptar
     
     _encrypt(data) {
         try {
@@ -76,21 +58,15 @@ const DB = {
     getCurrentUser() { 
         try {
             const data = localStorage.getItem('currentUser_enc');
-            if (!data) {
-                console.log('No hay usuario guardado');
-                return null;
-            }
-            console.log('Leyendo datos encriptados:', data.substring(0, 50) + '...');
+            if (!data) return null;
             const result = this._decrypt(data);
-            console.log('Usuario desencriptado:', result);
-            if (!result) {
+            if (!result || typeof result !== 'object') {
                 localStorage.removeItem('currentUser_enc');
                 return null;
             }
             return result;
         } catch(e) {
             console.error('Error getCurrentUser:', e);
-            localStorage.removeItem('currentUser_enc');
             return null;
         }
     },
@@ -697,12 +673,12 @@ window.onload = function() {
 
 // ============ CORREOS AUTORIZADOS ============
 function showAddEmail() {
-    document.getElementById('addEmailInput').value = '';
+    document.getElementById('addEmail').value = '';
     document.getElementById('modalAddEmail').classList.remove('hidden');
 }
 
-function addEmail() {
-    const email = document.getElementById('addEmailInput').value.toLowerCase().trim();
+function addAuthorizedEmail() {
+    const email = document.getElementById('addEmail').value.toLowerCase().trim();
     if (!email) {
         showToast('Ingresa un correo', 'error');
         return;
