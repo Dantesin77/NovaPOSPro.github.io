@@ -1,12 +1,7 @@
 console.log('App.js cargado correctamente');
 
-// Solo limpiar una vez
-try {
-    if (!sessionStorage.getItem('db_cleaned')) {
-        sessionStorage.setItem('db_cleaned', '1');
-        console.log('Primera carga, limpiando datos corruptos...');
-    }
-} catch(e) {}
+// Limpiar todo - empezar desde cero
+localStorage.clear();
 
 // ============ BASE DE DATOS LOCAL ============
 const DB = {
@@ -37,35 +32,32 @@ const DB = {
     
     getAffiliates() { 
         const data = localStorage.getItem('afiliados_enc');
-        return data ? this._decrypt(data) : [];
+        const result = data ? this._decrypt(data) : null;
+        return Array.isArray(result) ? result : [];
     },
     setAffiliates(data) { 
         localStorage.setItem('afiliados_enc', this._encrypt(data));
     },
     getSales() { 
         const data = localStorage.getItem('ventas_enc');
-        return data ? this._decrypt(data) : [];
+        const result = data ? this._decrypt(data) : null;
+        return Array.isArray(result) ? result : [];
     },
     setSales(data) { 
         localStorage.setItem('ventas_enc', this._encrypt(data));
     },
     getEmails() { 
-        try {
-            const data = localStorage.getItem('correosAutorizados_enc');
-            if (!data) return [];
-            const result = this._decrypt(data);
-            return Array.isArray(result) ? result : [];
-        } catch(e) {
-            console.error('Error getEmails:', e);
-            return [];
-        }
+        const data = localStorage.getItem('correosAutorizados_enc');
+        const result = data ? this._decrypt(data) : null;
+        return Array.isArray(result) ? result : [];
     },
     setEmails(data) { 
         localStorage.setItem('correosAutorizados_enc', this._encrypt(data));
     },
     getPayments() { 
         const data = localStorage.getItem('pagos_enc');
-        return data ? this._decrypt(data) : [];
+        const result = data ? this._decrypt(data) : null;
+        return Array.isArray(result) ? result : [];
     },
     setPayments(data) { 
         localStorage.setItem('pagos_enc', this._encrypt(data));
@@ -172,6 +164,14 @@ function showTab(tab) {
         el.classList.remove('bg-blue-600');
         el.classList.add('bg-slate-700');
     });
+    
+    // Cargar tablas según la pestaña
+    if (tab === 'emails') {
+        loadEmailsTable();
+    } else if (tab === 'payments') {
+        loadPaymentsTable();
+    }
+}
     const activeTab = document.querySelector(`[data-tab="${tab}"]`);
     if (activeTab) {
         activeTab.classList.add('bg-blue-600');
@@ -265,8 +265,8 @@ function showAffiliateDashboard() {
 }
 
 function loadAdminData() {
-    const affiliates = DB.getAffiliates();
-    const sales = DB.getSales();
+    const affiliates = DB.getAffiliates() || [];
+    const sales = DB.getSales() || [];
 
     document.getElementById('statAffiliates').textContent = affiliates.length;
     document.getElementById('statSales').textContent = sales.length;
@@ -385,7 +385,7 @@ function addAffiliate() {
         return;
     }
 
-    const affiliates = DB.getAffiliates();
+    const affiliates = DB.getAffiliates() || [];
     if (affiliates.find(a => a.user === user)) {
         showToast('El usuario ya existe', 'error');
         return;
@@ -406,7 +406,7 @@ function addAffiliate() {
 
 function deleteAffiliate(id) {
     if (!confirm('¿Eliminar este afiliado?')) return;
-    let affiliates = DB.getAffiliates();
+    let affiliates = DB.getAffiliates() || [];
     affiliates = affiliates.filter(a => a.id !== id);
     DB.setAffiliates(affiliates);
     loadAdminData();
@@ -415,7 +415,7 @@ function deleteAffiliate(id) {
 
 // ============ CRUD VENTAS ============
 function showAddSale() {
-    const affiliates = DB.getAffiliates();
+    const affiliates = DB.getAffiliates() || [];
     const select = document.getElementById('saleAffiliate');
     select.innerHTML = '<option value="">Seleccionar Afiliado</option>' +
         affiliates.map(a => `<option value="${a.id}">${a.name} ${a.lastname || ''}</option>`).join('');
@@ -435,7 +435,7 @@ function addSale() {
         return;
     }
 
-    const sales = DB.getSales();
+    const sales = DB.getSales() || [];
     sales.push({
         id: Date.now(),
         affiliateId,
@@ -455,7 +455,7 @@ function addSale() {
 }
 
 function toggleSaleStatus(id) {
-    const sales = DB.getSales();
+    const sales = DB.getSales() || [];
     const sale = sales.find(s => s.id === id);
     if (!sale) return;
     sale.status = sale.status === 'pagado' ? 'pendiente' : 'pagado';
@@ -466,7 +466,7 @@ function toggleSaleStatus(id) {
 
 function deleteSale(id) {
     if (!confirm('¿Eliminar esta venta?')) return;
-    let sales = DB.getSales();
+    let sales = DB.getSales() || [];
     sales = sales.filter(s => s.id !== id);
     DB.setSales(sales);
     loadAdminData();
@@ -721,7 +721,7 @@ function addAuthorizedEmail() {
         showToast('Solo correos Gmail', 'error');
         return;
     }
-    const emails = DB.getEmails();
+    const emails = DB.getEmails() || [];
     if (emails.find(e => e.email === email)) {
         showToast('Este correo ya existe', 'error');
         return;
@@ -735,9 +735,15 @@ function addAuthorizedEmail() {
 }
 
 function loadEmailsTable() {
+    console.log('loadEmailsTable ejecutandose');
     const emails = DB.getEmails() || [];
+    console.log('Emails cargados:', emails);
     const tbody = document.getElementById('emailsTable');
-    if (!tbody) return;
+    console.log('tbody element:', tbody);
+    if (!tbody) {
+        console.log('No se encontro emailsTable');
+        return;
+    }
     if (emails.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">No hay correos autorizados</td></tr>';
         return;
@@ -752,11 +758,12 @@ function loadEmailsTable() {
             </td>
         </tr>
     `).join('');
+    console.log('Tabla actualizada con', emails.length, 'emails');
 }
 
 function deleteEmail(index) {
     if (!confirm('¿Eliminar este correo?')) return;
-    let emails = DB.getEmails();
+    let emails = DB.getEmails() || [];
     emails.splice(index, 1);
     DB.setEmails(emails);
     loadEmailsTable();
@@ -765,7 +772,7 @@ function deleteEmail(index) {
 
 // ============ PAGOS ============
 function showAddPayment() {
-    const affiliates = DB.getAffiliates();
+    const affiliates = DB.getAffiliates() || [];
     const select = document.getElementById('paymentAffiliate');
     select.innerHTML = '<option value="">Seleccionar</option>' +
         affiliates.map(a => `<option value="${a.id}">${a.name} ${a.lastname || ''}</option>`).join('');
@@ -782,7 +789,7 @@ function addPayment() {
         return;
     }
     
-    const payments = DB.getPayments();
+    const payments = DB.getPayments() || [];
     payments.push({
         id: Date.now(),
         affiliateId,
@@ -797,8 +804,8 @@ function addPayment() {
 }
 
 function loadPaymentsTable() {
-    const payments = DB.getPayments();
-    const affiliates = DB.getAffiliates();
+    const payments = DB.getPayments() || [];
+    const affiliates = DB.getAffiliates() || [];
     const tbody = document.getElementById('paymentsTable');
     if (!tbody) return;
     tbody.innerHTML = payments.map(p => {
@@ -816,8 +823,8 @@ function loadPaymentsTable() {
 
 // ============ REPORTES ============
 function generateReport() {
-    const affiliates = DB.getAffiliates();
-    const sales = DB.getSales();
+    const affiliates = DB.getAffiliates() || [];
+    const sales = DB.getSales() || [];
     
     let csv = 'REPORTE DE AFILIADOS\n\n';
     csv += 'Nombre,Usuario,Cedula,Telefono,Banco,Total Ventas,Comision Total\n';
