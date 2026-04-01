@@ -1,13 +1,8 @@
 console.log('App.js cargado correctamente');
 
-// Limpiar localStorage si tiene datos corruptos de la clave anterior
-if (localStorage.getItem('novaKey')) {
-    localStorage.removeItem('currentUser_enc');
-    localStorage.removeItem('novaKey');
-}
-
-// ============ BASE DE DATOS LOCAL ============
-const DB = {
+// Limpiar TODOS los datos locales (datos corruptos de claves anteriores)
+localStorage.clear();
+console.log('localStorage limpiado');
     _defaultAdminPass: '312915',
     _key: 'novaPOS_secret_key_2024_v1',
     
@@ -48,8 +43,15 @@ const DB = {
         localStorage.setItem('ventas_enc', this._encrypt(data));
     },
     getEmails() { 
-        const data = localStorage.getItem('correosAutorizados_enc');
-        return data ? this._decrypt(data) : [];
+        try {
+            const data = localStorage.getItem('correosAutorizados_enc');
+            if (!data) return [];
+            const result = this._decrypt(data);
+            return Array.isArray(result) ? result : [];
+        } catch(e) {
+            console.error('Error getEmails:', e);
+            return [];
+        }
     },
     setEmails(data) { 
         localStorage.setItem('correosAutorizados_enc', this._encrypt(data));
@@ -720,9 +722,13 @@ function addAuthorizedEmail() {
 }
 
 function loadEmailsTable() {
-    const emails = DB.getEmails();
+    const emails = DB.getEmails() || [];
     const tbody = document.getElementById('emailsTable');
     if (!tbody) return;
+    if (emails.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">No hay correos autorizados</td></tr>';
+        return;
+    }
     tbody.innerHTML = emails.map((e, i) => `
         <tr class="border-b border-slate-700/50">
             <td class="py-3">${escapeHtml(e.email)}</td>
