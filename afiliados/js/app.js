@@ -1,7 +1,9 @@
-console.log('App.js cargado correctamente');
+console.log('App.js carga iniciando...');
+alert('App.js cargando...');
 
 // Limpiar todo - empezar desde cero
 localStorage.clear();
+console.log('localStorage limpiado');
 
 // ============ BASE DE DATOS LOCAL ============
 const DB = {
