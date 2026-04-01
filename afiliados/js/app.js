@@ -1,9 +1,15 @@
 console.log('App.js cargado correctamente');
 
+// Limpiar localStorage si tiene datos corruptos de la clave anterior
+if (localStorage.getItem('novaKey')) {
+    localStorage.removeItem('currentUser_enc');
+    localStorage.removeItem('novaKey');
+}
+
 // ============ BASE DE DATOS LOCAL ============
 const DB = {
     _defaultAdminPass: '312915',
-    _key: 'novaPOS_fixed_key_2024', // Clave fija para que los datos se puedan desencriptar
+    _key: 'novaPOS_secret_key_2024_v1',
     
     _encrypt(data) {
         try {
@@ -673,12 +679,24 @@ window.onload = function() {
 
 // ============ CORREOS AUTORIZADOS ============
 function showAddEmail() {
-    document.getElementById('addEmail').value = '';
-    document.getElementById('modalAddEmail').classList.remove('hidden');
+    console.log('showAddEmail llamado');
+    const emailInput = document.getElementById('addEmail');
+    const modal = document.getElementById('modalAddEmail');
+    console.log('addEmail element:', emailInput);
+    console.log('modalAddEmail element:', modal);
+    if (emailInput) emailInput.value = '';
+    if (modal) modal.classList.remove('hidden');
 }
 
 function addAuthorizedEmail() {
-    const email = document.getElementById('addEmail').value.toLowerCase().trim();
+    console.log('addAuthorizedEmail llamado');
+    const emailInput = document.getElementById('addEmail');
+    if (!emailInput) {
+        console.error('No se encontró addEmail');
+        showToast('Error: campo no encontrado', 'error');
+        return;
+    }
+    const email = emailInput.value.toLowerCase().trim();
     if (!email) {
         showToast('Ingresa un correo', 'error');
         return;
