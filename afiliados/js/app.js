@@ -149,31 +149,7 @@ async function verifyLoginFirebase(user, pass) {
     return null;
 }
 
-function login() {
-    const user = document.getElementById('loginUser').value.trim();
-    const pass = document.getElementById('loginPass').value;
-
-    if (!user || !pass) {
-        showToast('Ingresa usuario y contraseña', 'error');
-        return;
-    }
-
-    if (user === DB.getAdminUser() && pass === DB.getAdminPass()) {
-        currentUser = { type: 'admin', name: 'Administrador' };
-        DB.setCurrentUser(currentUser);
-        showAdminDashboard();
-    } else {
-        const affiliates = DB.getAffiliates();
-        const affiliate = affiliates.find(a => a.user && a.user === user && (a.pass === pass || a.pass === hashPass(pass)));
-        if (affiliate) {
-            currentUser = { type: 'affiliate', ...affiliate };
-            DB.setCurrentUser(currentUser);
-            showAffiliateDashboard();
-        } else {
-            showToast('Credenciales incorrectas', 'error');
-        }
-    }
-}
+function generateReferralCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = 'AF';
     for (let i = 0; i < 4; i++) {
@@ -1343,31 +1319,3 @@ function loadFromCloud() {
         })
         .catch(() => {});
 }
-
-window.addEventListener('load', () => {
-    document.getElementById('loginScreen').classList.add('visible');
-    
-    const user = DB.getCurrentUser();
-    if (user) {
-        const storedToken = localStorage.getItem('sessionToken');
-        if (user.sessionToken === storedToken) {
-            if (user.type === 'admin') {
-                currentUser = user;
-                showAdminDashboard();
-            } else if (user.type === 'affiliate' && user.id) {
-                currentUser = user;
-                showAffiliateDashboard();
-            }
-        } else {
-            DB.logout();
-        }
-    }
-    
-    if (getFirebaseConfig().apiKey) {
-        setTimeout(() => {
-            if (initFirebase()) {
-                updateCloudStatus(true);
-            }
-        }, 1000);
-    }
-});
