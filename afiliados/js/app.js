@@ -407,6 +407,199 @@ function deleteSale(id) {
     showToast('Venta eliminada');
 }
 
+// ============ FIREBASE ============
+let firebaseDb = null;
+let firebaseApp = null;
+
+function getFirebaseConfig() {
+    const saved = {
+        apiKey: localStorage.getItem('firebaseApiKey'),
+        projectId: localStorage.getItem('firebaseProjectId'),
+        databaseURL: localStorage.getItem('firebaseDatabaseUrl')
+    };
+    if (saved.apiKey && saved.databaseURL) {
+        return saved;
+    }
+    return {
+        apiKey: "AIzaSyBbvoi-sByR6F7iC1AbOjs7zxbGRfzfMZ0",
+        projectId: "novapos-minegocio",
+        databaseURL: "https://novapos-minegocio-default-rtdb.firebaseio.com"
+    };
+}
+
+function initFirebase() {
+    const config = getFirebaseConfig();
+    if (!config.apiKey || !config.databaseURL) return false;
+    try {
+        if (!firebaseApp) {
+            firebaseApp = firebase.initializeApp({
+                apiKey: config.apiKey,
+                authDomain: config.projectId + ".firebaseapp.com",
+                databaseURL: config.databaseURL,
+                projectId: config.projectId
+            }, 'afiliados');
+            firebaseDb = firebaseApp.database();
+        }
+        return true;
+    } catch (e) {
+        console.error('Firebase error:', e);
+        return false;
+    }
+}
+
+function updateCloudStatus(connected) {
+    const statusEl = document.getElementById('cloudStatus');
+    if (statusEl) {
+        if (connected) {
+            statusEl.textContent = '☁️ Conectado';
+            statusEl.className = 'text-xs text-green-400';
+        } else {
+            statusEl.textContent = '☁️ Sin conectar';
+            statusEl.className = 'text-xs text-slate-400';
+        }
+    }
+}
+
+function syncToCloud() {
+    if (!initFirebase()) {
+        showToast('Configura Firebase primero', 'error');
+        return;
+    }
+    const data = {
+        affiliates: DB.getAffiliates(),
+        sales: DB.getSales(),
+        emails: DB.getEmails(),
+        payments: DB.getPayments(),
+        lastUpdate: new Date().toISOString()
+    };
+    firebaseDb.ref('sistema_afiliados').set(data)
+        .then(() => {
+            updateCloudStatus(true);
+            showToast('☁️ Datos subidos');
+        })
+        .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function syncFromCloud() {
+    if (!initFirebase()) {
+        showToast('Firebase no disponible', 'error');
+        return;
+    }
+    if (!confirm('Esto reemplazará datos locales. ¿Continuar?')) return;
+    firebaseDb.ref('sistema_afiliados').get()
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                if (data.affiliates) DB.setAffiliates(data.affiliates);
+                if (data.sales) DB.setSales(data.sales);
+                if (data.emails) DB.setEmails(data.emails);
+                if (data.payments) DB.setPayments(data.payments);
+                loadAdminData();
+                updateCloudStatus(true);
+                showToast('☁️ Datos descargados');
+            } else {
+                showToast('No hay datos en la nube', 'error');
+            }
+        })
+        .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function showFirebaseConfig() {
+    const config = getFirebaseConfig();
+    document.getElementById('firebaseApiKey').value = config.apiKey || '';
+    document.getElementById('firebaseProjectId').value = config.projectId || '';
+    document.getElementById('firebaseDatabaseUrl').value = config.databaseURL || '';
+    document.getElementById('modalFirebaseConfig').classList.remove('hidden');
+}
+
+function saveFirebaseConfig() {
+    const apiKey = document.getElementById('firebaseApiKey').value.trim();
+    const projectId = document.getElementById('firebaseProjectId').value.trim();
+    const databaseUrl = document.getElementById('firebaseDatabaseUrl').value.trim();
+    if (!apiKey || !projectId || !databaseUrl) {
+        showToast('Completa todos los campos', 'error');
+        return;
+    }
+    localStorage.setItem('firebaseApiKey', apiKey);
+    localStorage.setItem('firebaseProjectId', projectId);
+    localStorage.setItem('firebaseDatabaseUrl', databaseUrl);
+    firebaseApp = null;
+    firebaseDb = null;
+    closeModal('modalFirebaseConfig');
+    showToast('✅ Config guardada');
+    updateCloudStatus(true);
+}
+
+// ============ BACKUP ============
+function backupData() {
+    const data = {
+        affiliates: DB.getAffiliates(),
+        sales: DB.getSales(),
+        emails: DB.getEmails(),
+        payments: DB.getPayments(),
+        backupDate: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_afiliados_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    showToast('💾 Backup descargado');
+}
+
+function importData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.affiliates) DB.setAffiliates(data.affiliates);
+            if (data.sales) DB.setSales(data.sales);
+            if (data.emails) DB.setEmails(data.emails);
+            if (data.payments) DB.setPayments(data.payments);
+            loadAdminData();
+            showToast('📂 Datos importados');
+        } catch(err) {
+            showToast('Error al importar', 'error');
+        }
+    };
+    reader.readAsText(file);
+    input.value = '';
+}
+
+// ============ CAMBIAR PASS ============
+function showChangeAdminPass() {
+    document.getElementById('adminCurrentUser').value = DB.getAdminUser();
+    document.getElementById('adminCurrentPass').value = '';
+    document.getElementById('adminNewPass').value = '';
+    document.getElementById('modalChangeAdminPass').classList.remove('hidden');
+}
+
+function changeAdminPass() {
+    const currentUser = document.getElementById('adminCurrentUser').value.trim();
+    const currentPass = document.getElementById('adminCurrentPass').value;
+    const newPass = document.getElementById('adminNewPass').value;
+    
+    if (currentUser !== DB.getAdminUser()) {
+        showToast('Usuario incorrecto', 'error');
+        return;
+    }
+    if (currentPass !== DB.getAdminPass()) {
+        showToast('Contraseña incorrecta', 'error');
+        return;
+    }
+    if (newPass.length < 4) {
+        showToast('Mínimo 4 caracteres', 'error');
+        return;
+    }
+    
+    DB.setAdminPass(newPass);
+    closeModal('modalChangeAdminPass');
+    showToast('✅ Contraseña cambiada');
+}
+
 // ============ INICIALIZACION ============
 window.onload = function() {
     console.log('Inicializando...');
@@ -415,6 +608,9 @@ window.onload = function() {
     const user = DB.getCurrentUser();
     if (user && user.type === 'admin') {
         showAdminDashboard();
+        if (initFirebase()) {
+            updateCloudStatus(true);
+        }
     } else if (user && user.type === 'affiliate') {
         showAffiliateDashboard();
     }
