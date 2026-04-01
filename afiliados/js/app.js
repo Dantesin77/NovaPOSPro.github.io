@@ -87,7 +87,7 @@ function showToast(msg, type = 'success') {
 }
 
 function showLogin() {
-    document.getElementById('loginScreen').classList.add('visible');
+    document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('registerScreen').classList.add('hidden');
     document.getElementById('registerScreen').style.display = 'none';
@@ -98,11 +98,10 @@ function showLogin() {
 }
 
 function showRegister() {
-    document.getElementById('loginScreen').classList.remove('visible');
+    document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('registerScreen').classList.remove('hidden');
     document.getElementById('registerScreen').style.display = 'flex';
-    document.getElementById('registerScreen').style.visibility = 'visible';
 }
 
 function showResetPass() {
@@ -179,20 +178,30 @@ function logout() {
     document.getElementById('loginPass').value = '';
 }
 
+window.logout = logout;
+
 // ============ DASHBOARD ADMIN ============
 function showAdminDashboard() {
+    document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('registerScreen').classList.add('hidden');
     document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('adminDashboard').classList.remove('hidden');
     document.getElementById('adminDashboard').style.display = 'block';
+    document.getElementById('affiliateDashboard').classList.add('hidden');
     document.getElementById('affiliateDashboard').style.display = 'none';
     showTab('dashboard');
     loadAdminData();
 }
 
 function showAffiliateDashboard() {
+    document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('registerScreen').classList.add('hidden');
     document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('adminDashboard').classList.add('hidden');
     document.getElementById('adminDashboard').style.display = 'none';
+    document.getElementById('affiliateDashboard').classList.remove('hidden');
     document.getElementById('affiliateDashboard').style.display = 'block';
     loadAffiliateData();
 }
