@@ -730,25 +730,8 @@
 
     <script src="js/app.js"></script>
     <script>
-        // Diagnóstico
-        console.log('=== DIAGNOSTICO ===');
-        console.log('login function exists:', typeof login);
-        console.log('showResetPass exists:', typeof showResetPass);
-        console.log('showRegister exists:', typeof showRegister);
-        
-        // Test manual
-        function testLogin() {
-            console.log('Test login clicked');
-            try {
-                login();
-            } catch(e) {
-                console.error('Error en login:', e);
-            }
-        }
-        
-        // Listener para errores
         window.addEventListener('error', function(e) {
-            console.error('JS Error:', e.message, 'at', e.filename, 'line', e.lineno);
+            console.error('JS Error:', e.message, 'en', e.filename, 'línea', e.lineno);
         });
     </script>
 </body>

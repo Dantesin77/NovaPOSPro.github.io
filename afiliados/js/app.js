@@ -602,17 +602,25 @@ function changeAdminPass() {
 
 // ============ INICIALIZACION ============
 window.onload = function() {
-    console.log('Inicializando...');
-    showLogin();
+    console.log('=== INICIALIZANDO ===');
     
     const user = DB.getCurrentUser();
+    console.log('Usuario guardado:', user);
+    console.log('Admin user:', DB.getAdminUser());
+    console.log('Admin pass:', DB.getAdminPass());
+    
     if (user && user.type === 'admin') {
+        console.log('Restaurando sesión admin...');
         showAdminDashboard();
         if (initFirebase()) {
             updateCloudStatus(true);
         }
     } else if (user && user.type === 'affiliate') {
+        console.log('Restaurando sesión afiliado...');
         showAffiliateDashboard();
+    } else {
+        console.log('No hay usuario, mostrando login...');
+        showLogin();
     }
     
     console.log('DB inicializada');
