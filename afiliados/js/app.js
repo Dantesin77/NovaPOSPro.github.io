@@ -1,8 +1,15 @@
 console.log('App.js cargado correctamente');
 
-// Limpiar TODOS los datos locales (datos corruptos de claves anteriores)
-localStorage.clear();
-console.log('localStorage limpiado');
+// Solo limpiar una vez
+try {
+    if (!sessionStorage.getItem('db_cleaned')) {
+        sessionStorage.setItem('db_cleaned', '1');
+        console.log('Primera carga, limpiando datos corruptos...');
+    }
+} catch(e) {}
+
+// ============ BASE DE DATOS LOCAL ============
+const DB = {
     _defaultAdminPass: '312915',
     _key: 'novaPOS_secret_key_2024_v1',
     
@@ -823,3 +830,14 @@ function generateReport() {
     a.click();
     showToast('Reporte descargado');
 }
+
+// Verificar que las funciones principales estén definidas
+console.log('Funciones cargadas:', {
+    login: typeof login,
+    showLogin: typeof showLogin,
+    showRegister: typeof showRegister,
+    showResetPass: typeof showResetPass,
+    showAddEmail: typeof showAddEmail,
+    addAuthorizedEmail: typeof addAuthorizedEmail,
+    showToast: typeof showToast
+});

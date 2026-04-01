@@ -734,15 +734,12 @@
             console.error('JS Error:', e.message, 'en', e.filename, 'línea', e.lineno);
         });
         
-        // Conectar botón generar código
-        document.getElementById('btnGenerarCodigo').addEventListener('click', function() {
-            if (typeof addAuthorizedEmail === 'function') {
-                addAuthorizedEmail();
-            } else {
-                console.error('addAuthorizedEmail no existe');
-                alert('Función no encontrada, recarga la página (Ctrl+Shift+R)');
-            }
-        });
+        // Esperar a que cargue app.js
+        setTimeout(function() {
+            // Botón generar código
+            var btnCodigo = document.getElementById('btnGenerarCodigo');
+            if (btnCodigo) btnCodigo.addEventListener('click', addAuthorizedEmail);
+        }, 100);
     </script>
 </body>
 </html>
