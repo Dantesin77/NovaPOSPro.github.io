@@ -5,49 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <!-- Solo cargamos Firebase una vez (V8 Compat para máxima compatibilidad con el código actual) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
 
     <!-- Login Screen -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 visible">
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 hidden">
         <div class="w-full max-w-md">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                <div class="relative inline-block mb-4">
+                    <div class="absolute -inset-1 bg-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                    <img src="../logo_pro.png" alt="Nova POS Pro" class="relative w-20 h-20 rounded-2xl shadow-2xl border border-white/10">
                 </div>
-                <h1 class="text-3xl font-bold">Sistema de Afiliados</h1>
-                <p class="text-slate-400 mt-2">Ingresa para gestionar</p>
+                <h1 class="text-3xl font-black tracking-tight">NOVA POS <span class="text-blue-400">PRO</span></h1>
+                <p class="text-slate-400 mt-2 text-sm font-semibold uppercase tracking-widest">Sistema de Afiliados</p>
             </div>
 
-            <div class="glass rounded-3xl p-8 glow" id="loginForm">
+            <form class="glass rounded-3xl p-8 glow" id="loginForm" onsubmit="event.preventDefault(); login();">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Usuario</label>
-                        <input type="text" id="loginUser" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin">
+                        <input type="text" id="loginUser" onkeydown="if(event.key==='Enter') login()" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Contraseña</label>
-                        <input type="password" id="loginPass" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••">
+                        <input type="password" id="loginPass" onkeydown="if(event.key==='Enter') login()" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••">
                     </div>
-                    <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all">
+                    <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all">
                         Ingresar
                     </button>
                 </div>
                 <div class="mt-4 text-center space-y-2">
-                    <button type="button" onclick="showResetPass()" class="block text-yellow-400 hover:text-yellow-300 text-sm bg-transparent border-none cursor-pointer">¿Olvidaste tu contraseña?</button>
-                    <button type="button" onclick="showRegister()" class="block text-blue-400 hover:text-blue-300 text-sm bg-transparent border-none cursor-pointer">¿Eres afiliado? Regístrate aquí</button>
+                    <button type="button" id="btnShowReset" onclick="showResetPass()" class="block text-yellow-400 hover:text-yellow-300 text-sm bg-transparent border-none cursor-pointer w-full text-center">¿Olvidaste tu contraseña?</button>
+                    <button type="button" onclick="showRegister()" class="block text-blue-400 hover:text-blue-300 text-sm bg-transparent border-none cursor-pointer w-full text-center">¿Eres afiliado? Regístrate aquí</button>
                 </div>
                 <div class="mt-6 pt-4 border-t border-slate-700 text-center">
                     <a href="https://dantesin77.github.io/NovaPOSPro.github.io/" class="text-green-400 hover:text-green-300 text-sm">🏠 Volver a Nova POS Pro</a>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -58,7 +58,7 @@
                 <h1 class="text-2xl font-bold">Registro de Afiliado</h1>
                 <p class="text-slate-400 text-sm">Únete y gana $2 por cada cliente</p>
             </div>
-            <div class="glass rounded-3xl p-6 glow">
+            <form class="glass rounded-3xl p-6 glow" onsubmit="event.preventDefault();">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Correo Gmail</label>
@@ -83,37 +83,37 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Teléfono</label>
-                            <input type="text" id="regPhone" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <input type="text" id="regPhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Crear Contraseña</label>
                             <input type="password" id="regPass" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
-                    <button id="btnRequestCode" onclick="requestVerification()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all">
+                    <button type="button" id="btnRequestCode" onclick="requestVerification()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition-all">
                         Verificar Correo
                     </button>
-                    <button id="btnVerifyCode" onclick="verifyCode()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-bold transition-all hidden">
+                    <button type="button" id="btnVerifyCode" onclick="verifyCode()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-bold transition-all hidden">
                         Confirmar Código
                     </button>
                     <button id="btnRegister" type="button" onclick="registerAffiliate()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition-all hidden">
                         Registrarse
                     </button>
-                    <button onclick="showLogin()" class="w-full bg-slate-700 py-3 rounded-xl font-bold transition-all">
+                    <button type="button" onclick="showLogin()" class="w-full bg-slate-700 py-3 rounded-xl font-bold transition-all">
                         Volver
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
     <!-- Admin Dashboard -->
     <div id="adminDashboard" class="hidden">
-        <div class="max-w-7xl mx-auto p-6">
+        <div class="max-w-7xl mx-auto p-4 md:p-6 pb-20">
             <div class="glass rounded-2xl p-4 mb-6 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <a href="https://dantesin77.github.io/NovaPOSPro.github.io/" class="bg-green-600/20 text-green-400 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-green-600/30">🏠 Volver</a>
-                    <h1 class="text-xl font-bold text-white">Sistema de Afiliados Nova POS</h1>
+                    <img src="../logo_pro.png" alt="Nova POS Pro" class="w-8 h-8 rounded-lg">
+                    <h1 class="text-lg font-black tracking-tighter">NOVA POS <span class="text-blue-400">PRO</span> <span class="text-slate-500 font-bold ml-2 uppercase text-[10px] tracking-widest bg-slate-700/50 px-2 py-1 rounded">Admin</span></h1>
                 </div>
                 <div class="flex gap-2 items-center">
                     <span id="cloudStatus" class="text-xs text-slate-400">☁️ Sin conectar</span>
@@ -128,22 +128,24 @@
                 </div>
             </div>
 
-            <div class="flex gap-2 mb-6">
-                <button onclick="showTab('dashboard')" class="tab-btn bg-blue-600 px-6 py-2 rounded-lg font-semibold" data-tab="dashboard">📊 Dashboard</button>
-                <button onclick="showTab('licenses')" class="tab-btn bg-slate-700 px-6 py-2 rounded-lg font-semibold" data-tab="licenses">🔑 Licencias</button>
-                <button onclick="showTab('emails')" class="tab-btn bg-slate-700 px-6 py-2 rounded-lg font-semibold" data-tab="emails">📧 Autorizar Correos</button>
-                <button onclick="showTab('affiliates')" class="tab-btn bg-slate-700 px-6 py-2 rounded-lg font-semibold" data-tab="affiliates">👥 Afiliados</button>
-                <button onclick="showTab('sales')" class="tab-btn bg-slate-700 px-6 py-2 rounded-lg font-semibold" data-tab="sales">💵 Ventas</button>
-                <button onclick="showTab('payments')" class="tab-btn bg-slate-700 px-6 py-2 rounded-lg font-semibold" data-tab="payments">💰 Pagos</button>
+            <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                <button onclick="showTab('dashboard')" class="tab-btn bg-blue-600 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="dashboard">📊 Dashboard</button>
+                <button onclick="showTab('licenses')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="licenses">🔑 Licencias</button>
+                <button onclick="showTab('emails')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="emails">📧 Correos</button>
+                <button onclick="showTab('affiliates')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="affiliates">👥 Afiliados</button>
+                <button onclick="showTab('sales')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="sales">💵 Ventas</button>
+                <button onclick="showTab('payments')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="payments">💰 Pagos</button>
+                <button onclick="showTab('announcements')" class="tab-btn bg-slate-700 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="announcements">📢 Anuncios</button>
+                <button onclick="showTab('tickets')" class="tab-btn bg-indigo-600 px-4 py-1.5 rounded-lg font-semibold text-xs whitespace-nowrap" data-tab="tickets">🎫 Tickets</button>
             </div>
 
-            <div class="flex gap-2 mb-6 text-sm text-slate-400">
+            <div class="flex gap-2 mb-4 text-[11px] text-slate-400 font-bold uppercase tracking-wider">
                 <span>Total Afiliados: <strong id="statAffiliates" class="text-blue-400">0</strong></span>
-                <span class="mx-4">|</span>
+                <span class="mx-3">|</span>
                 <span>Total Ventas: <strong id="statSales" class="text-green-400">0</strong></span>
-                <span class="mx-4">|</span>
+                <span class="mx-3">|</span>
                 <span>Pagado: <strong id="statPaid" class="text-amber-400">$0</strong></span>
-                <span class="mx-4">|</span>
+                <span class="mx-3">|</span>
                 <span>Pendiente: <strong id="statPending" class="text-purple-400">$0</strong></span>
             </div>
 
@@ -177,19 +179,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div class="glass rounded-xl p-4">
                         <p class="text-slate-400 text-sm">Total Ventas</p>
-                        <p id="dashTotalSales" class="text-3xl font-bold text-blue-400">0</p>
+                        <p id="dashTotalSales" class="text-xl font-bold text-blue-400">0</p>
                     </div>
                     <div class="glass rounded-xl p-4">
                         <p class="text-slate-400 text-sm">Comisiones Ganadas</p>
-                        <p id="dashTotalCommission" class="text-3xl font-bold text-green-400">$0</p>
+                        <p id="dashTotalCommission" class="text-xl font-bold text-green-400">$0</p>
                     </div>
                     <div class="glass rounded-xl p-4">
                         <p class="text-slate-400 text-sm">Comisiones Pagadas</p>
-                        <p id="dashPaidCommission" class="text-3xl font-bold text-amber-400">$0</p>
+                        <p id="dashPaidCommission" class="text-xl font-bold text-amber-400">$0</p>
                     </div>
                     <div class="glass rounded-xl p-4">
                         <p class="text-slate-400 text-sm">Por Pagar</p>
-                        <p id="dashPendingCommission" class="text-3xl font-bold text-purple-400">$0</p>
+                        <p id="dashPendingCommission" class="text-xl font-bold text-purple-400">$0</p>
                     </div>
                 </div>
                 
@@ -241,6 +243,7 @@
                         </table>
                     </div>
                 </div>
+            </div>
             </div>
 
             <div id="tab-affiliates" class="tab-content">
@@ -306,9 +309,9 @@
             </div>
 
             <div id="tab-payments" class="tab-content hidden">
-                <div class="glass rounded-2xl p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-bold">Historial de Pagos a Afiliados</h2>
+                <div class="glass rounded-2xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-base font-bold">💰 Historial de Pagos</h2>
                         <div class="flex gap-2">
                             <input type="text" id="searchPayments" onkeyup="filterTable('payments')" placeholder="Buscar..." class="bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-sm">
                             <button onclick="showAddPayment()" class="bg-green-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-500">
@@ -333,18 +336,83 @@
                     </div>
                 </div>
             </div>
+
+            <div id="tab-announcements" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Global Marketing Settings -->
+                    <div class="glass rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-base font-bold">📢 Plantilla de Marketing</h2>
+                        </div>
+                        <p class="text-slate-400 text-[11px] mb-3">Material de venta predeterminado para afiliados.</p>
+                        <textarea id="adminMarketingText" rows="4" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                        <button onclick="saveMarketingText()" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 mt-3 rounded-lg font-bold text-sm transition-all">Guardar Plantilla</button>
+                    </div>
+
+                    <!-- Direct Messages -->
+                    <div class="glass rounded-2xl p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-base font-bold">✉️ Enviar Notificación</h2>
+                        </div>
+                        <p class="text-slate-400 text-[11px] mb-3">Anuncios rápidos a uno o todos.</p>
+                        <div class="space-y-3">
+                            <select id="msgTarget" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-xs">
+                                <option value="all">A todos los afiliados</option>
+                            </select>
+                            <input type="text" id="msgTitle" placeholder="Título" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-xs">
+                            <textarea id="msgContent" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Mensaje..."></textarea>
+                            <button onclick="sendAdminMessage()" class="w-full bg-green-600 hover:bg-green-500 py-2.5 rounded-lg font-bold text-sm flex justify-center items-center gap-2 transition-all">
+                                <span>📤</span> Enviar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB TICKETS (NUEVO) -->
+            <div id="tab-tickets" class="tab-content hidden">
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">🎫 Tickets de Soporte Recibidos</h2>
+                        <input type="text" id="searchTickets" onkeyup="filterTable('tickets')" placeholder="Buscar ticket..." class="bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-sm">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-slate-400 border-b border-slate-700">
+                                    <th class="pb-3">Fecha</th>
+                                    <th class="pb-3">Afiliado</th>
+                                    <th class="pb-3">Asunto</th>
+                                    <th class="pb-3">Mensaje</th>
+                                    <th class="pb-3 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketsTableAdmin">
+                                <!-- JS Generates this -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Affiliate Dashboard -->
-    <div id="affiliateDashboard" class="hidden">
-        <header class="bg-slate-800/50 border-b border-slate-700 p-4">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <h1 class="text-xl font-bold">Mi Panel de Afiliado</h1>
+    <div id="affiliateDashboard" class="hidden" style="background-color: #1a202c !important;">
+        <header class="bg-slate-800 border-b border-slate-700 p-3">
+            <div class="max-w-7xl mx-auto flex justify-between items-center px-4">
+                <div class="flex items-center gap-3">
+                    <img src="../logo_pro.png" alt="Nova POS Pro" class="w-8 h-8 rounded-lg">
+                    <h1 class="text-lg font-black tracking-tighter">NOVA POS <span class="text-blue-400">PRO</span> <span class="text-slate-500 font-bold ml-2 uppercase text-[10px] tracking-widest bg-slate-700/50 px-2 py-1 rounded">Afiliado</span></h1>
+                </div>
                 <div class="flex gap-2">
                     <a href="../" class="bg-green-600/20 text-green-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600/30">
                         🏠 Volver
                     </a>
+                    <button onclick="showAffiliateMessages()" class="relative bg-indigo-600/20 text-indigo-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-600/30">
+                        🔔 Mensajes
+                        <span id="unreadBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse hidden">0</span>
+                    </button>
                     <button onclick="showAffiliateProfile()" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600/30">
                         👤 Mi Perfil
                     </button>
@@ -386,25 +454,123 @@
                 </div>
             </div>
 
-            <div class="glass rounded-2xl p-6">
-                <h2 class="text-lg font-bold mb-4">Historial de Ventas</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="text-left text-slate-400 text-sm border-b border-slate-700">
-                                <th class="pb-3">Código</th>
-                                <th class="pb-3">Cliente (RIF)</th>
-                                <th class="pb-3">Días</th>
-                                <th class="pb-3">Fecha</th>
-                                <th class="pb-3">Comisión</th>
-                            </tr>
-                        </thead>
+            <!-- Herramientas del Afiliado -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Acciones -->
+                <div class="glass rounded-2xl p-6 flex flex-col justify-center items-center text-center space-y-4">
+                    <h2 class="text-lg font-bold">Herramientas Rápidas</h2>
+                    <p class="text-xs text-slate-400">Comunícate con la administración para solicitar tus pagos o reportar fallas.</p>
+                    <div class="flex flex-col w-full gap-3 mt-4">
+                        <button onclick="requestPaymentWpp()" class="bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                            <span>💸</span> Solicitar Pago de Comisiones
+                        </button>
+                        <button onclick="supportWpp()" class="bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                            <span>📱</span> Soporte Técnico Administrador
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Material Marketing -->
+                <div class="glass rounded-2xl p-6">
+                    <h2 class="text-lg font-bold mb-2">Material de Venta</h2>
+                    <p class="text-xs text-slate-400 mb-4">Usa esta plantilla como mensaje base para escribirle a tus clientes potenciales por WhatsApp.</p>
+                    <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl relative group">
+                        <button onclick="copyMarketingText()" class="absolute top-2 right-2 bg-blue-600 text-white hover:bg-blue-500 px-3 py-1 rounded text-xs font-bold transition-colors opacity-80 hover:opacity-100 shadow-lg">
+                            Copiar Texto
+                        </button>
+                        <p id="marketingText" class="text-sm text-slate-300 font-sans whitespace-pre-wrap pr-16"><!-- Generado JS --></p>
+                    </div>
+                </div>
+            </div>
+
+                <div class="glass rounded-2xl p-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Formulario Ticket -->
+                        <div>
+                            <h2 class="text-lg font-bold mb-2">🎫 Soporte Técnico</h2>
+                            <p class="text-xs text-slate-400 mb-4">Envía un mensaje privado a la administración. Recibirás respuesta por esta vía o WhatsApp.</p>
+                            <div class="space-y-3">
+                                <input type="text" id="ticketSubject" placeholder="Asunto de la consulta" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-sm">
+                                <textarea id="ticketMessage" rows="4" placeholder="Describe tu problema o solicitud aquí..." class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                <button onclick="sendTicket()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold transition-all">
+                                    Enviar Ticket de Soporte
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Centro de Recursos y Ayuda -->
+                        <div class="glass border-blue-500/30 rounded-2xl p-6 glow-sm">
+                            <h2 class="text-lg font-black mb-1 flex items-center gap-2">
+                                <span class="bg-blue-600/30 w-8 h-8 flex items-center justify-center rounded-lg text-sm">💡</span> Centro de Ayuda
+                            </h2>
+                            <p class="text-xs text-slate-400 mb-6 font-semibold">Toda la información que necesitas para ganar con NOVA POS PRO.</p>
+                            
+                            <div class="grid grid-cols-1 gap-4">
+                                <button onclick="showAffiliateFAQ()" class="flex items-center justify-between p-4 bg-slate-800/80 border border-slate-700/50 rounded-xl hover:bg-slate-700 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xl">❓</span>
+                                        <div class="text-left">
+                                            <div class="text-xs font-black text-white">Preguntas Frecuentes</div>
+                                            <div class="text-[10px] text-slate-500">¿Cómo gano? ¿Cómo cobro?</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-600 group-hover:text-blue-400 transition-all">❯</span>
+                                </button>
+                                
+                                <button onclick="showAffiliateTerms()" class="flex items-center justify-between p-4 bg-slate-800/80 border border-slate-700/50 rounded-xl hover:bg-slate-700 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xl">📜</span>
+                                        <div class="text-left">
+                                            <div class="text-xs font-black text-white">Términos y Condiciones</div>
+                                            <div class="text-[10px] text-slate-500">Reglas y lineamientos oficiales.</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-slate-600 group-hover:text-blue-400 transition-all">❯</span>
+                                </button>
+
+                                <button onclick="supportWpp()" class="flex items-center justify-between p-4 bg-green-600/10 border border-green-500/20 rounded-xl hover:bg-green-600/20 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xl">💬</span>
+                                        <div class="text-left">
+                                            <div class="text-xs font-black text-green-400">Soporte Directo</div>
+                                            <div class="text-[10px] text-green-500/70">Habla con un administrador ahora.</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600/50 group-hover:text-green-400 transition-all">❯</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Historial Tickets Propios -->
+                        <div>
+                            <h2 class="text-lg font-bold mb-2">Mis Mensajes</h2>
+                            <p class="text-xs text-slate-400 mb-4 font-semibold uppercase tracking-widest text-[9px]">Estado de tus consultas</p>
+                            <div class="bg-slate-800/50 rounded-xl max-h-56 overflow-y-auto border border-slate-700/30" id="myTicketsHistory">
+                                <!-- JS Generates this -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-2xl p-6 mt-6">
+                    <h2 class="text-lg font-bold mb-4">Historial de Ventas</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-slate-400 text-sm border-b border-slate-700">
+                                    <th class="pb-3">Código</th>
+                                    <th class="pb-3">Cliente (RIF)</th>
+                                    <th class="pb-3">Días</th>
+                                    <th class="pb-3">Fecha</th>
+                                    <th class="pb-3">Comisión</th>
+                                </tr>
+                            </thead>
                         <tbody id="mySalesTable"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Modal Agregar Afiliado -->
     <div id="modalAddAffiliate" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
@@ -413,8 +579,8 @@
             <div class="space-y-3">
                 <input type="text" id="addName" placeholder="Nombre" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="addLastname" placeholder="Apellido" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="addCedula" placeholder="Cédula (V12345678)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="addPhone" placeholder="Teléfono (04121234567)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="addCedula" oninput="this.value = this.value.toUpperCase().replace(/[^VE0-9]/g, '')" placeholder="Cédula (V12345678)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="addPhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Teléfono (04121234567)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="email" id="addUser" placeholder="correo@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="password" id="addPass" placeholder="Contraseña" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <select id="addBanco" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
@@ -438,17 +604,70 @@
         </div>
     </div>
 
+    <!-- Modal Buzón de Mensajes del Afiliado (NUEVO) -->
+    <div id="modalAffiliateMessages" onclick="closeModal('modalAffiliateMessages')" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50 transition-all cursor-pointer">
+        <div class="glass rounded-2xl p-4 w-full max-w-sm shadow-2xl border border-indigo-500/30 cursor-default" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h2 class="text-sm font-bold flex items-center gap-2">
+                    <span class="text-indigo-400">🔔</span> Notificaciones Admin
+                </h2>
+                <button onclick="closeModal('modalAffiliateMessages')" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div id="affiliateMessagesList" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                <!-- JS Genera esta lista -->
+            </div>
+            <div class="mt-4">
+                <button onclick="closeModal('modalAffiliateMessages')" class="w-full bg-slate-700 py-2.5 rounded-xl text-xs font-bold transition-all hover:bg-slate-600">Cerrar Buzón</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Reset Contraseña -->
     <div id="modalResetPass" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
         <div class="glass rounded-2xl p-6 w-full max-w-md">
             <h2 class="text-xl font-bold mb-4">🔐 Recuperar Contraseña</h2>
-            <div class="space-y-3">
-                <input type="email" id="resetEmail" placeholder="Tu correo Gmail" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+            <p class="text-slate-300 text-sm mb-6 text-center">Por razones de seguridad, si olvidaste tu cuenta, debes solicitarle una clave temporal directamente a tu administrador.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="contactAdminForReset()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-lg font-bold flex justify-center items-center gap-2">
+                    <span>📱</span> WhatsApp Administrador
+                </button>
+                <button onclick="closeModal('modalResetPass')" class="w-full bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-semibold">Cancelar</button>
             </div>
-            <p class="text-slate-400 text-xs mt-2">Ingresa tu correo y el administrador te enviará una nueva contraseña.</p>
-            <div class="flex gap-2 mt-4">
-                <button onclick="requestPasswordReset()" class="flex-1 bg-blue-600 py-2 rounded-lg font-semibold">Solicitar</button>
-                <button onclick="closeModal('modalResetPass')" class="flex-1 bg-slate-600 py-2 rounded-lg font-semibold">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Detalle de Ticket (NUEVO) -->
+    <div id="modalTicketDetail" onclick="closeModal('modalTicketDetail')" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50 cursor-pointer">
+        <div class="glass rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-blue-500/30 cursor-default" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-blue-400">🎫</span> Detalle del Ticket
+                </h2>
+                <button onclick="closeModal('modalTicketDetail')" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4 text-[11px] uppercase tracking-wider font-bold">
+                    <div>
+                        <p class="text-slate-500">De:</p>
+                        <p id="viewTicketSender" class="text-blue-400">-</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-slate-500">Fecha:</p>
+                        <p id="viewTicketDate" class="text-slate-300">-</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-[11px] uppercase font-bold">Asunto:</p>
+                    <p id="viewTicketSubject" class="text-white font-bold text-base mt-1">-</p>
+                </div>
+                <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50 max-h-60 overflow-y-auto">
+                    <p id="viewTicketMessage" class="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">-</p>
+                </div>
+            </div>
+            <div class="mt-6">
+                <button onclick="closeModal('modalTicketDetail')" class="w-full bg-slate-700 hover:bg-slate-600 py-3 rounded-xl font-bold transition-all">
+                    Cerrar Lectura
+                </button>
             </div>
         </div>
     </div>
@@ -465,7 +684,7 @@
                 <p class="text-xs text-blue-400 font-semibold mt-2">📦 Datos del Cliente</p>
                 <input type="text" id="saleNegocio" placeholder="Nombre del Negocio" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="saleRif" placeholder="RIF del Cliente (J-12345678-0)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="saleTelefono" placeholder="Teléfono del Cliente" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="saleTelefono" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Teléfono del Cliente" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="saleDireccion" placeholder="Dirección del Negocio" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 
                 <p class="text-xs text-green-400 font-semibold mt-2">🔑 Datos de la Licencia</p>
@@ -541,7 +760,8 @@
                 <input type="text" id="editLicenseCode" placeholder="Código de Licencia" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="editLicenseNegocio" placeholder="Nombre del Negocio" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="editLicenseRif" placeholder="RIF del Cliente" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="editLicenseTelefono" placeholder="Teléfono" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="editLicenseTelefono" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Teléfono" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="editLicenseDireccion" placeholder="Dirección del Negocio" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="number" id="editLicenseDays" placeholder="Días de Licencia" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <select id="editLicenseStatus" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                     <option value="pendiente">Pendiente</option>
@@ -563,8 +783,8 @@
             <div class="space-y-3">
                 <input type="text" id="editName" placeholder="Nombre" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <input type="text" id="editLastname" placeholder="Apellido" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="editCedula" placeholder="Cédula (V12345678)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
-                <input type="text" id="editPhone" placeholder="Teléfono" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="editCedula" oninput="this.value = this.value.toUpperCase().replace(/[^VE0-9]/g, '')" placeholder="Cédula (V12345678)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                <input type="text" id="editPhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Teléfono" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 <select id="editBanco" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                     <option value="">Seleccionar Banco</option>
                     <option value="Venezuala">Banco de Venezuela</option>
@@ -578,6 +798,9 @@
                     <option value="Caroni">Banco Caroní</option>
                     <option value="Otro">Otro</option>
                 </select>
+                <hr class="border-slate-700 my-2">
+                <input type="text" id="editPass" placeholder="Asignar Nueva Contraseña (Opcional)" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3 text-sm focus:border-red-500">
+                <p class="text-[10px] text-slate-400">Si dejas este campo en blanco, el afiliado mantendrá su contraseña actual.</p>
             </div>
             <div class="flex gap-2 mt-4">
                 <button onclick="saveEditAffiliate()" class="flex-1 bg-blue-600 py-2 rounded-lg font-semibold">Guardar</button>
@@ -635,11 +858,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Teléfono</label>
-                    <input type="text" id="profilePhone" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                    <input type="text" id="profilePhone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Cédula</label>
-                    <input type="text" id="profileCedula" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                    <input type="text" id="profileCedula" oninput="this.value = this.value.toUpperCase().replace(/[^VE0-9]/g, '')" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Banco</label>
@@ -673,25 +896,62 @@
     <!-- Modal Renovar Licencia -->
     <div id="modalRenewLicense" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
         <div class="glass rounded-2xl p-6 w-full max-w-md">
-            <h2 class="text-xl font-bold mb-4">🔄 Renovar Licencia</h2>
+            <h2 class="text-xl font-bold mb-2">🔄 Comprar Renovación</h2>
+            <p class="text-xs text-slate-400 mb-4">La renovación registrará un evento de compra histórico para el cliente sin comisiones dobles para el afiliado.</p>
             <input type="hidden" id="renewLicenseId">
             <div class="space-y-3">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Días Actuales</label>
-                    <input type="text" id="renewCurrentDays" disabled class="w-full bg-slate-800/50 border border-slate-700 rounded-lg py-2 px-3">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Días a comprar (Renovación)</label>
+                    <input type="number" id="renewAddDays" placeholder="Ej: 30" class="w-full bg-slate-800 border-2 border-blue-600 rounded-lg py-3 px-3 text-lg font-bold focus:outline-none focus:border-green-500 transition-colors">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Agregar Días</label>
-                    <input type="number" id="renewAddDays" placeholder="Días a agregar" class="w-full bg-slate-800 border border-slate-700 rounded-lg py-2 px-3">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nuevo Código de Licencia</label>
+                    <input type="text" id="renewNewCode" placeholder="Ej: ABC-1234-XYZ" class="w-full bg-slate-800/80 border border-slate-700 rounded-lg py-2 px-3">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nuevo Total</label>
-                    <input type="text" id="renewNewTotal" disabled class="w-full bg-slate-800/50 border border-slate-700 rounded-lg py-2 px-3">
+                <hr class="border-slate-700 my-2">
+                <div class="flex flex-row justify-between bg-slate-800/50 p-3 rounded-lg border border-slate-700">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Días Acumulados Anteriores</label>
+                        <input type="text" id="renewCurrentDays" disabled class="w-24 bg-transparent text-slate-400 font-mono">
+                    </div>
+                    <div class="text-right">
+                        <label class="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Proyección Futura</label>
+                        <input type="text" id="renewNewTotal" disabled class="w-24 bg-transparent text-white font-bold text-right">
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveRenewLicense()" class="flex-1 bg-green-600 py-2 rounded-lg font-semibold">Renovar</button>
-                <button onclick="closeModal('modalRenewLicense')" class="flex-1 bg-slate-600 py-2 rounded-lg font-semibold">Cancelar</button>
+            <div class="flex gap-2 mt-6">
+                <button onclick="saveRenewLicense()" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-lg font-semibold transition-colors">Registrar Compra / Renovar</button>
+                <button onclick="closeModal('modalRenewLicense')" class="flex-1 bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-semibold transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Historial de Cliente -->
+    <div id="modalClientHistory" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+        <div class="glass rounded-2xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">📜 Historial del Cliente</h2>
+                <button onclick="closeModal('modalClientHistory')" class="text-slate-400 hover:text-white text-xl">&times;</button>
+            </div>
+            <p class="text-sm text-slate-300 font-bold mb-4" id="historyClientName">Nombre Cliente</p>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-x-auto max-h-80 overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-slate-800">
+                        <tr class="text-slate-400 text-xs border-b border-slate-700">
+                            <th class="py-2 px-3">Fecha</th>
+                            <th class="py-2 px-3">Tipo de Transacción</th>
+                            <th class="py-2 px-3">Días Comprados</th>
+                            <th class="py-2 px-3">Comisión</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm" id="clientHistoryTable">
+                        <!-- Generado por JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex">
+                <button onclick="closeModal('modalClientHistory')" class="ml-auto bg-slate-700 hover:bg-slate-600 py-2 px-6 rounded-lg font-semibold transition-colors">Cerrar</button>
             </div>
         </div>
     </div>
@@ -728,15 +988,108 @@
         Mensaje
     </div>
 
+    <!-- Scripts de la aplicación -->
+
+
+    <!-- Modal FAQ (NUEVO) -->
+    <div id="modalAffiliateFAQ" onclick="closeModal('modalAffiliateFAQ')" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-[100] cursor-pointer blur-backdrop">
+        <div class="glass rounded-3xl p-8 w-full max-w-2xl shadow-2xl border border-blue-500/30 cursor-default max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <h2 class="text-xl font-black flex items-center gap-3">
+                    <span class="bg-blue-600/20 w-10 h-10 flex items-center justify-center rounded-xl text-lg">❓</span> Centro de Preguntas
+                </h2>
+                <button onclick="closeModal('modalAffiliateFAQ')" class="text-slate-400 hover:text-white transition-all text-2xl">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                    <h4 class="font-black text-blue-400 mb-2">¿Cómo gano dinero en NOVA POS PRO?</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed">Ganas <strong class="text-green-400">$2</strong> por cada cliente nuevo que compre una licencia original (mes, trimestre o año). La comisión se paga por el registro inicial.</p>
+                </div>
+                
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                    <h4 class="font-black text-blue-400 mb-2">¿Cómo registro una venta realizada?</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed">Ve a la pestaña <strong>"💳 Ventas"</strong> de tu panel y llena el formulario con el RIF del cliente, nombre del negocio y el código de licencia que le vendiste. Esto notificará al administrador para procesar tu pago.</p>
+                </div>
+                
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                    <h4 class="font-black text-blue-400 mb-2">¿Cuándo y cómo recibo mi comisión?</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed">Una vez el administrador valide que la licencia del cliente está activa y pagada, tu saldo en "Comisiones Pendientes" se actualizará. Puedes solicitar tu pago vía WhatsApp o abriendo un Ticket de Soporte.</p>
+                </div>
+
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50">
+                    <h4 class="font-black text-blue-400 mb-2">¿Qué pasa si mi cliente renueva su licencia?</h4>
+                    <p class="text-slate-300 text-sm leading-relaxed">El programa de afiliados actual otorga una comisión por la adquisición del cliente (venta inicial). Las renovaciones posteriores no generan comisiones automáticas a menos de que se acuerde un porcentaje especial con el desarrollador.</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex gap-3">
+                <button onclick="closeModal('modalAffiliateFAQ')" class="flex-1 bg-slate-700 py-4 rounded-2xl font-black transition-all hover:bg-slate-600">Entendido, cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Términos y Condiciones (NUEVO) -->
+    <div id="modalAffiliateTerms" onclick="closeModal('modalAffiliateTerms')" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-[100] cursor-pointer blur-backdrop">
+        <div class="glass rounded-3xl p-8 w-full max-w-2xl shadow-2xl border border-purple-500/30 cursor-default max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <h2 class="text-xl font-black flex items-center gap-3">
+                    <span class="bg-purple-600/20 w-10 h-10 flex items-center justify-center rounded-xl text-lg">📜</span> Términos y Lineamientos
+                </h2>
+                <button onclick="closeModal('modalAffiliateTerms')" class="text-slate-400 hover:text-white transition-all text-2xl">✕</button>
+            </div>
+            
+            <div class="space-y-6 text-slate-300 text-sm leading-relaxed">
+                <section>
+                    <h5 class="text-white font-bold mb-1">1. Elegibilidad del Pago</h5>
+                    <p>El pago de la comisión de $2 solo aplica para clientes nuevos. No se pagarán comisiones por licencias de prueba de 7 días o registros duplicados del mismo negocio.</p>
+                </section>
+                
+                <section>
+                    <h5 class="text-white font-bold mb-1">2. Verificación de Venta</h5>
+                    <p>Toda venta registrada por el afiliado será auditada por el sistema. El código de licencia proporcionado debe ser auténtico y estar vinculado a una suscripción pagada.</p>
+                </section>
+                
+                <section>
+                    <h5 class="text-white font-bold mb-1">3. Tasa de Cambio</h5>
+                    <p>Los pagos se realizarán preferiblemente por Pago Móvil (Bs) a la tasa oficial del BCV del día en que se procese el retiro, o mediante otros métodos acordados previamente.</p>
+                </section>
+
+                <section class="p-4 bg-red-600/10 border border-red-500/20 rounded-2xl">
+                    <h5 class="text-red-400 font-bold mb-1 italic">4. Prohibiciones</h5>
+                    <p class="text-xs">Está estrictamente prohibido el uso de SPAM, publicidad engañosa sobre el precio oficial de NOVA POS PRO o el uso indebido de los logotipos de la marca. Cualquier falta resultará en la baja inmediata del programa sin reintegro de comisiones acumuladas.</p>
+                </section>
+            </div>
+
+            <div class="mt-8">
+                <button onclick="closeModal('modalAffiliateTerms')" class="w-full bg-purple-600 py-4 rounded-2xl font-black transition-all hover:bg-purple-700">Acepto los términos</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/app.js"></script>
     <script>
+        // FUNCIÓN DE CIERRE INTEGRADA (INFALIBLE)
+        function closeModal(id) {
+            console.log('Intentando cerrar modal:', id);
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                // Forzado adicional
+                modal.setAttribute('style', 'display: none !important');
+            } else {
+                console.error('No se encontró el modal con ID:', id);
+            }
+        }
+        window.closeModal = closeModal;
+
         window.addEventListener('error', function(e) {
             console.error('JS Error:', e.message, 'en', e.filename, 'línea', e.lineno);
         });
         
         // Esperar a que cargue app.js
         setTimeout(function() {
-            // Botón generar código
             var btnCodigo = document.getElementById('btnGenerarCodigo');
             if (btnCodigo) btnCodigo.addEventListener('click', addAuthorizedEmail);
         }, 100);

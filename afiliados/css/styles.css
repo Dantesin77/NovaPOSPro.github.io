@@ -4,14 +4,17 @@ body { font-family: 'Inter', sans-serif; }
 .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
 .glow { box-shadow: 0 0 40px rgba(59,130,246,0.3); }
 
+/* Fuerza de visibilidad */
+.force-block { display: block !important; }
+.force-flex { display: flex !important; }
+.force-hidden { display: none !important; }
+
 /* Tab Content - Altura fija exacta para que no se mueva */
 .tab-content { 
     margin-bottom: 20px; 
-    height: calc(100vh - 300px);
     display: none;
     width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
 }
 .tab-content:not(.hidden) { 
     display: block; 
